@@ -9,7 +9,7 @@ Note that the actual NTIA Internet Use Survey datasets are hosted within the [Da
 ## Contents of this Repository
 
 -   [**create-ntia-tables**](https://github.com/NTIADC/ntia-internet-use-survey/tree/main/create-ntia-tables)**:** Used to produce the "analyze table" spreadsheet of pre-computed statistics used by [NTIA Data Explorer](https://www.ntia.gov/data/explorer). Currently only written in Stata.
--   [**import-ntia-cps**](https://github.com/NTIADC/ntia-internet-use-survey/tree/main/import-ntia-cps)**:** Takes the raw data files provided by the Census Bureau and produces datasets in native format, including through the addition of replicate weights and any other ancilliary files as appropriate. Available for both R and Stata.
+-   [**import-ntia-cps**](https://github.com/NTIADC/ntia-internet-use-survey/tree/main/import-ntia-cps)**:** Takes the raw data files provided by the Census Bureau and produces datasets in native format, including through the addition of replicate weights and any other ancillary files as appropriate. Available for both R and Stata.
 -   [**sample-code**](https://github.com/NTIADC/ntia-internet-use-survey/tree/main/sample-code)**:** Demonstration scripts that can be used to reproduce the calculations that appear in many [Data Central Blog](https://ntia.gov/data/blogs) posts. While most are currently written in Stata, more R scripts will appear here over time.
 -   [**tech-docs**](https://github.com/NTIADC/ntia-internet-use-survey/tree/main/tech-docs)**:** All of the technical documents produced by the Census Bureau to accompany NTIA Internet Use Survey [public use datasets](https://www.ntia.gov/page/download-digital-nation-datasets), as well as additional information provided by NTIA.
 
