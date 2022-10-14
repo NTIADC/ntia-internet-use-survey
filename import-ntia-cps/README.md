@@ -16,7 +16,7 @@ And the corresponding data dictionary might define the first few variables:
 
 The first observation in the dataset should therefore be assigned an HRHHID value of `610905110108708`, an HRMONTH value of `11`, and an HRYEAR4 value of `2021`. The same pattern is repeated for every line in the file.
 
-In addition to the main data file, the Census Bureau also supplies additional files containing replicate weights, and in a couple of cases has also included auxiliary files that provide additional useful information. `import-ntia-cps` combines all files pertaining to a particular data collection into a single dataset in native format, and also performs a few other transformations to ease analysis, e.g., inserting decimal points where specified in the data dictionary. The resulting datasets are used by NTIA staff internally and are also [posted for public download](https://www.ntia.gov/page/download-digital-nation-datasets).
+In addition to the main data file, the Census Bureau also supplies additional files containing replicate weights, and in a couple of cases has also included auxiliary files that provide additional useful information. `import-ntia-cps` combines all files pertaining to a particular data collection into a single dataset in native format, and also performs a few other transformations to ease analysis, e.g., inserting decimal points where specified in the data dictionary. The resulting datasets are used by NTIA staff internally and are also [posted for public download](https://www.ntia.gov/page/download-ntia-internet-use-survey-datasets).
 
 To use the R version of `import-ntia-cps`, `source("import.ntia.cps.R")` in the directory containing that file, and then run:
 

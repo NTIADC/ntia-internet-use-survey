@@ -4,7 +4,7 @@
 
 NTIA uses `create-ntia-tables` to automatically generate a large spreadsheet of summary statistics from NTIA Internet Use Survey datasets. NTIA staff export the resulting file, `ntia-analyze-table.dta`, to a CSV to serve as the data source used by [Data Explorer](https://www.ntia.gov/data/explorer) for all visualizations. Currently, this tool is only written for use with Stata.
 
-Required files include `create-ntia-tables.do`, `master-labels.do`, and a number of dataset-specific files named using the `<monYR>-tables.do` convention. `master-labels.do` adds plain English descriptions for each metric, while the `<monYR>-tables.do` files are used to recode variables in each dataset to yield the common metrics and demographic breakouts tracked in the spreadsheet. Users should also [download all datasets](https://www.ntia.gov/page/download-digital-nation-datasets) they want used in the output in Stata format. Set the working directory to the location of the .do files and type:
+Required files include `create-ntia-tables.do`, `master-labels.do`, and a number of dataset-specific files named using the `<monYR>-tables.do` convention. `master-labels.do` adds plain English descriptions for each metric, while the `<monYR>-tables.do` files are used to recode variables in each dataset to yield the common metrics and demographic breakouts tracked in the spreadsheet. Users should also [download all datasets](https://www.ntia.gov/page/download-ntia-internet-use-survey-datasets) they want used in the output in Stata format. Set the working directory to the location of the .do files and type:
 
 ``` stata
 run create-ntia-tables <monYR>[...] [local | internal]

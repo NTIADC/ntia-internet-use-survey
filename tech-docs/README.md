@@ -1,14 +1,14 @@
 # Technical Documentation: Detailed Information from the Census Bureau
 
-*Background on how surveys were administered and complete guide to using the [public use datasets](https://www.ntia.gov/page/download-digital-nation-datasets)*
+*Background on how surveys were administered and complete guide to using the [public use datasets](https://www.ntia.gov/page/download-ntia-internet-use-survey-datasets)*
 
 The U.S. Census Bureau produces an extensive technical document, available in the [**tech-docs**](https://github.com/NTIADC/ntia-internet-use-survey/tree/main/tech-docs) directory, to accompany each NTIA Internet Use Survey public use dataset. Additionally, the Census Bureau's [Technical Paper 77](https://www2.census.gov/programs-surveys/cps/methodology/CPS-Tech-Paper-77.pdf) is a comprehensive guide to the design and methodology of the Current Population Survey (CPS); the NTIA Internet Use Survey is administered as a periodic supplement to CPS and inherits its characteristics (as well as the demographic and labor force data collected in the main part of the CPS each month). NTIA is also providing an introduction to using NTIA Internet Use Survey datasets in this document.
 
-Note that the actual NTIA Internet Use Survey datasets are hosted within the [Data Central](https://www.ntia.gov/data) section of NTIA's website, specifically at <https://www.ntia.gov/page/download-digital-nation-datasets>. NTIA makes datasets available in Stata, R, and CSV formats, as well as in the original raw format provided by the Census Bureau.
+Note that the actual NTIA Internet Use Survey datasets are hosted within the [Data Central](https://www.ntia.gov/data) section of NTIA's website, specifically at <https://www.ntia.gov/page/download-ntia-internet-use-survey-datasets>. NTIA makes datasets available in Stata, R, and CSV formats, as well as in the original raw format provided by the Census Bureau.
 
 ## New to the NTIA Internet Use Survey? Important Notes for Researchers
 
-In making [raw datasets](https://www.ntia.gov/page/download-digital-nation-datasets) available in multiple formats and providing [sample code](https://github.com/NTIADC/ntia-internet-use-survey/tree/main/sample-code), NTIA seeks to stimulate original research into important policy questions affecting the spread of technology, Internet use, and digital equity. However, it is important for users to understand the complexities of NTIA Internet Use Survey datasets in order to produce accurate analyses.
+In making [raw datasets](https://www.ntia.gov/page/download-ntia-internet-use-survey-datasets) available in multiple formats and providing [sample code](https://github.com/NTIADC/ntia-internet-use-survey/tree/main/sample-code), NTIA seeks to stimulate original research into important policy questions affecting the spread of technology, Internet use, and digital equity. However, it is important for users to understand the complexities of NTIA Internet Use Survey datasets in order to produce accurate analyses.
 
 ### Dataset Structure
 
