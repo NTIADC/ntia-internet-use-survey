@@ -203,14 +203,14 @@ foreach x of numlist 1/`numDatasets' {
 		foreach q in $`universe'Vars {
 			* pull overall numbers
 			* noisily disp "$S_TIME universe: `universe'; ifUniverse: `ifUniverse'; q: `q'" // diagnostic
-			svy: mean `q' if `ifUniverse' == 1
+			svy, double: mean `q' if `ifUniverse' == 1
 			matrix temp = e(b)
 			local theStat = temp[1,1]
 			local varStats "(`theStat')"
 			matrix temp = e(V)
 			local theStat = sqrt(temp[1,1])
 			local varStats "`varStats' (`theStat')"
-			svy: total `q' if `ifUniverse' == 1
+			svy, double: total `q' if `ifUniverse' == 1
 			matrix temp = e(b)
 			local theStat = temp[1,1]
 			local varStats "`varStats' (`theStat')"
@@ -229,10 +229,10 @@ foreach x of numlist 1/`numDatasets' {
 					if "`z'" == "ageGroup" {
 						local varStats "`varStats' (.) (.) (.) (.)" // no householders ages 3-14
 					}
-					svy: mean `q'  if `ifUniverse' == 1, over(`z')
+					svy, double: mean `q'  if `ifUniverse' == 1, over(`z')
 					matrix tempEstProp = e(b)
 					matrix tempVarProp = e(V)
-					svy: total `q'  if `ifUniverse' == 1, over(`z')
+					svy, double: total `q'  if `ifUniverse' == 1, over(`z')
 					matrix tempEstCount = e(b)
 					matrix tempVarCount = e(V)
 					local numCats = colsof(tempEstProp)
@@ -287,14 +287,14 @@ foreach x of numlist 1/`numDatasets' {
 			else if "`ifUniverse'" == "none" {
 				local ifUniverse = "isPerson"
 			}*/
-			svy: mean `q' if `ifUniverse' == 1
+			svy, double: mean `q' if `ifUniverse' == 1
 			matrix temp = e(b)
 			local theStat = temp[1,1]
 			local varStats "(`theStat')"
 			matrix temp = e(V)
 			local theStat = sqrt(temp[1,1])
 			local varStats "`varStats' (`theStat')"
-			svy: total `q' if `ifUniverse' == 1
+			svy, double: total `q' if `ifUniverse' == 1
 			matrix temp = e(b)
 			local theStat = temp[1,1]
 			local varStats "`varStats' (`theStat')"
@@ -316,10 +316,10 @@ foreach x of numlist 1/`numDatasets' {
 							local varStats "`varStats' (.) (.) (.) (.)"
 						}
 					}
-					svy: mean `q' if `ifUniverse' == 1, over(`z')
+					svy, double: mean `q' if `ifUniverse' == 1, over(`z')
 					matrix tempEstProp = e(b)
 					matrix tempVarProp = e(V)
-					svy: total `q' if `ifUniverse' == 1, over(`z')
+					svy, double: total `q' if `ifUniverse' == 1, over(`z')
 					matrix tempEstCount = e(b)
 					matrix tempVarCount = e(V)
 					local numCats = colsof(tempEstProp)
@@ -365,14 +365,14 @@ foreach x of numlist 1/`numDatasets' {
 		foreach q in $adultInternetUserVars { // rework if random respondent variables get multiple universes
 			* pull overall numbers
 			* noisily disp "$S_TIME q: `q'" // diagnostic
-			svy: mean `q'
+			svy, double: mean `q'
 			matrix temp = e(b)
 			local theStat = temp[1,1]
 			local varStats "(`theStat')"
 			matrix temp = e(V)
 			local theStat = sqrt(temp[1,1])
 			local varStats "`varStats' (`theStat')"
-			svy: total `q'
+			svy, double: total `q'
 			matrix temp = e(b)
 			local theStat = temp[1,1]
 			local varStats "`varStats' (`theStat')"
@@ -384,10 +384,10 @@ foreach x of numlist 1/`numDatasets' {
 				if "`z'" == "ageGroup" {
 					local varStats "`varStats' (.) (.) (.) (.)" // no random respondents ages 3-14
 				}
-				svy: mean `q', over(`z')
+				svy, double: mean `q', over(`z')
 				matrix tempEstProp = e(b)
 				matrix tempVarProp = e(V)
-				svy: total `q', over(`z')
+				svy, double: total `q', over(`z')
 				matrix tempEstCount = e(b)
 				matrix tempVarCount = e(V)
 				local numCats = colsof(tempEstProp)
