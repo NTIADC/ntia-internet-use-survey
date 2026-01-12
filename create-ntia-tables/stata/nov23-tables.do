@@ -1,5 +1,5 @@
 *	nov23-tables.do
-*	Version 1.0 (May 10, 2024)
+*	Version 1.1 (January 12, 2026)
 *	National Telecommunications and Information Administration
 *
 *	Contains supporting code for create-ntia-tables.do specific to the named
