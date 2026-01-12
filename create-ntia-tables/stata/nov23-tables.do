@@ -45,7 +45,7 @@ recode ptdtrace (-1 = .) (1 = 0 "White, non-Hispanic") (2 = 1 "Black, non-Hispan
 replace race = 2 if pehspnon == 1 // Hispanic ID comes from separate variable
 recode prdisflg (-1 = .) (2 = 0 "Not Disabled") (1 = 1 "Disabled"), gen(disability)
 recode gtmetsta (2 = 0 "Non-Metropolitan Area") (1 = 1 "Metropolitan Area") (3 = 2 "Unknown"), gen(metro)
-bysort qstnum: egen schoolChildrenAtHome = max(prtage <= 17 & prtage >= 6 & perrp >= 4) if hrintsta == 1
+bysort qstnum: egen schoolChildrenAtHome = max(prtage <= 17 & prtage >= 6 & (perrp >= 46 | inlist(perrp, 43, 44))) if hrintsta == 1
 label define schoolChildrenAtHome 0 "No" 1 "Yes"
 label values schoolChildrenAtHome schoolChildrenAtHome
 recode peafever (-1 = .) (2 = 0 "Not a Veteran") (1 = 1 "Veteran"), gen(veteran)
