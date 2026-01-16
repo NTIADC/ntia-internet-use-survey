@@ -1,5 +1,5 @@
 *	create-ntia-tables.do
-*	Version 2.0 (March 31, 2022)
+*	Version 2.1 (January 16, 2026)
 *	National Telecommunications and Information Administration
 *
 *	Syntax: run create-ntia-tables <monYR>[...] [remote | local | internal]
@@ -135,7 +135,7 @@ else {
 }
 
 * For each requested dataset, open the dataset, execute supporting code, perform calculations, and write to analyze table.
-postfile `output' str80(dataset variable description universe) double(usProp usPropSE usCount usCountSE ///
+frame create `output' str80(dataset variable description universe) double(usProp usPropSE usCount usCountSE ///
  age314Prop			age314PropSE			age314Count			age314CountSE			age1524Prop			age1524PropSE		age1524Count		age1524CountSE ///
  age2544Prop		age2544PropSE 			age2544Count		age2544CountSE			age4564Prop			age4564PropSE		age4564Count		age4564CountSE ///
  age65pProp			age65pPropSE			age65pCount			age65pCountSE			workEmployedProp	workEmployedPropSE	workEmployedCount	workEmployedCountSE ///
@@ -178,7 +178,7 @@ postfile `output' str80(dataset variable description universe) double(usProp usP
  UTProp				UTPropSE				UTCount				UTCountSE				VTProp				VTPropSE			VTCount				VTCountSE ///
  VAProp				VAPropSE				VACount				VACountSE				WAProp				WAPropSE			WACount				WACountSE ///
  WVProp				WVPropSE				WVCount				WVCountSE				WIProp				WIPropSE			WICount				WICountSE ///
- WYProp				WYPropSE				WYCount				WYCountSE) using `generatedTables'
+ WYProp				WYPropSE				WYCount				WYCountSE)
 global baseUniverse "none"
 foreach x of numlist 1/`numDatasets' {
 	use "`dataLocation'/``x''-cps.dta", clear
@@ -190,9 +190,11 @@ foreach x of numlist 1/`numDatasets' {
 	capture confirm variable hhwgt1
 	if _rc == 0 {
 		svyset [iw=householdWeight], sdrweight(hhwgt1-hhwgt160) vce(sdr) mse
+		local svyPrefix "svy, double"
 	}
 	else {
 		svyset [iw=householdWeight]
+		local svyPrefix "svy"
 	}
 	foreach universe in $baseUniverse isHouseholder $householdUniverses {
 		global noneVars "isHouseholder"
@@ -203,14 +205,14 @@ foreach x of numlist 1/`numDatasets' {
 		foreach q in $`universe'Vars {
 			* pull overall numbers
 			* noisily disp "$S_TIME universe: `universe'; ifUniverse: `ifUniverse'; q: `q'" // diagnostic
-			svy, double: mean `q' if `ifUniverse' == 1
+			`svyPrefix': mean `q' if `ifUniverse' == 1
 			matrix temp = e(b)
 			local theStat = temp[1,1]
 			local varStats "(`theStat')"
 			matrix temp = e(V)
 			local theStat = sqrt(temp[1,1])
 			local varStats "`varStats' (`theStat')"
-			svy, double: total `q' if `ifUniverse' == 1
+			`svyPrefix': total `q' if `ifUniverse' == 1
 			matrix temp = e(b)
 			local theStat = temp[1,1]
 			local varStats "`varStats' (`theStat')"
@@ -229,10 +231,10 @@ foreach x of numlist 1/`numDatasets' {
 					if "`z'" == "ageGroup" {
 						local varStats "`varStats' (.) (.) (.) (.)" // no householders ages 3-14
 					}
-					svy, double: mean `q'  if `ifUniverse' == 1, over(`z')
+					`svyPrefix': mean `q'  if `ifUniverse' == 1, over(`z')
 					matrix tempEstProp = e(b)
 					matrix tempVarProp = e(V)
-					svy, double: total `q'  if `ifUniverse' == 1, over(`z')
+					`svyPrefix': total `q'  if `ifUniverse' == 1, over(`z')
 					matrix tempEstCount = e(b)
 					matrix tempVarCount = e(V)
 					local numCats = colsof(tempEstProp)
@@ -255,22 +257,24 @@ foreach x of numlist 1/`numDatasets' {
 				}
 			}
 			if "`q'" == "isHouseholder" {
-				post `output' ("``x''") ("`q'") ("") ("") `varStats'
+				frame post `output' ("``x''") ("`q'") ("") ("") `varStats'
 			}
 			else {
-				post `output' ("``x''") ("`q'") ("") ("`universe'") `varStats'
+				frame post `output' ("``x''") ("`q'") ("") ("`universe'") `varStats'
 			}
 		}
 	}
 	capture confirm variable pewgt1
 	if _rc == 0 {
 		svyset [iw=personWeight], sdrweight(pewgt1-pewgt160) vce(sdr) mse
+		local svyPrefix "svy, double"
 	}
 	else {
 		capture svyset personClusterID [iw=personWeight], strata(personStrataID)
 		if _rc != 0 {
 			svyset [iw=personWeight]
 		}
+		local svyPrefix "svy"
 	}
 	foreach universe in $baseUniverse isPerson $personUniverses {
 		global noneVars "isPerson isAdult"
@@ -287,14 +291,14 @@ foreach x of numlist 1/`numDatasets' {
 			else if "`ifUniverse'" == "none" {
 				local ifUniverse = "isPerson"
 			}*/
-			svy, double: mean `q' if `ifUniverse' == 1
+			`svyPrefix': mean `q' if `ifUniverse' == 1
 			matrix temp = e(b)
 			local theStat = temp[1,1]
 			local varStats "(`theStat')"
 			matrix temp = e(V)
 			local theStat = sqrt(temp[1,1])
 			local varStats "`varStats' (`theStat')"
-			svy, double: total `q' if `ifUniverse' == 1
+			`svyPrefix': total `q' if `ifUniverse' == 1
 			matrix temp = e(b)
 			local theStat = temp[1,1]
 			local varStats "`varStats' (`theStat')"
@@ -316,10 +320,10 @@ foreach x of numlist 1/`numDatasets' {
 							local varStats "`varStats' (.) (.) (.) (.)"
 						}
 					}
-					svy, double: mean `q' if `ifUniverse' == 1, over(`z')
+					`svyPrefix': mean `q' if `ifUniverse' == 1, over(`z')
 					matrix tempEstProp = e(b)
 					matrix tempVarProp = e(V)
-					svy, double: total `q' if `ifUniverse' == 1, over(`z')
+					`svyPrefix': total `q' if `ifUniverse' == 1, over(`z')
 					matrix tempEstCount = e(b)
 					matrix tempVarCount = e(V)
 					local numCats = colsof(tempEstProp)
@@ -342,13 +346,13 @@ foreach x of numlist 1/`numDatasets' {
 				}
 			}
 			if "`q'" == "isPerson" {
-				post `output' ("``x''") ("`q'") ("") ("") `varStats'
+				frame post `output' ("``x''") ("`q'") ("") ("") `varStats'
 			}
 			else if "`q'" == "isAdult" {
-				post `output' ("``x''") ("`q'") ("") ("isPerson") `varStats'
+				frame post `output' ("``x''") ("`q'") ("") ("isPerson") `varStats'
 			}
 			else {
-				post `output' ("``x''") ("`q'") ("") ("`universe'") `varStats'
+				frame post `output' ("``x''") ("`q'") ("") ("`universe'") `varStats'
 			}
 		}
 	}
@@ -358,21 +362,23 @@ foreach x of numlist 1/`numDatasets' {
 		capture confirm variable rewgt1
 		if _rc == 0 {
 			svyset [iw=respondentWeight], sdrweight(rewgt1-rewgt160) vce(sdr) mse
+			local svyPrefix "svy, double"
 		}
 		else {
 			svyset [iw=respondentWeight]
+			local svyPrefix "svy"
 		}
 		foreach q in $adultInternetUserVars { // rework if random respondent variables get multiple universes
 			* pull overall numbers
 			* noisily disp "$S_TIME q: `q'" // diagnostic
-			svy, double: mean `q'
+			`svyPrefix': mean `q'
 			matrix temp = e(b)
 			local theStat = temp[1,1]
 			local varStats "(`theStat')"
 			matrix temp = e(V)
 			local theStat = sqrt(temp[1,1])
 			local varStats "`varStats' (`theStat')"
-			svy, double: total `q'
+			`svyPrefix': total `q'
 			matrix temp = e(b)
 			local theStat = temp[1,1]
 			local varStats "`varStats' (`theStat')"
@@ -384,10 +390,10 @@ foreach x of numlist 1/`numDatasets' {
 				if "`z'" == "ageGroup" {
 					local varStats "`varStats' (.) (.) (.) (.)" // no random respondents ages 3-14
 				}
-				svy, double: mean `q', over(`z')
+				`svyPrefix': mean `q', over(`z')
 				matrix tempEstProp = e(b)
 				matrix tempVarProp = e(V)
-				svy, double: total `q', over(`z')
+				`svyPrefix': total `q', over(`z')
 				matrix tempEstCount = e(b)
 				matrix tempVarCount = e(V)
 				local numCats = colsof(tempEstProp)
@@ -402,15 +408,13 @@ foreach x of numlist 1/`numDatasets' {
 					local varStats "`varStats' (`theStat')"
 				}
 			}
-			post `output' ("``x''") ("`q'") ("") ("adultInternetUser") `varStats'
+			frame post `output' ("``x''") ("`q'") ("") ("adultInternetUser") `varStats'
 		}
 	}
 }
-postclose `output'
 
 * Convert the dataset variable to date format, format stats appropriately, and add description and universe labels.
-clear
-use `generatedTables'
+frame change `output'
 replace dataset = string(date(dataset, "MY", 2093))
 destring dataset, replace
 format dataset %tdMon_CCYY
@@ -419,10 +423,10 @@ format *CountSE %12.0f
 format *Prop %7.6f
 format *PropSE %7.6f
 run "`codeLocation'/master-labels.do"
-save, replace
+save `generatedTables'
 
 * Add the generated statistics to ntia-analyze-table, deleting any previous observations for the selected datasets.
-clear
+frames reset
 capture use "`dataLocation'/ntia-analyze-table.dta"
 if _rc == 0 {
 	foreach x of numlist 1/`numDatasets' {
