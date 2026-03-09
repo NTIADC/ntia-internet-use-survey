@@ -1,5 +1,5 @@
 *	create-ntia-tables.do
-*	Version 2.1 (January 16, 2026)
+*	Version 2.2 (March 9, 2026)
 *	National Telecommunications and Information Administration
 *
 *	Syntax: run create-ntia-tables <monYR>[...] [remote | local | internal]
@@ -202,23 +202,22 @@ foreach x of numlist 1/`numDatasets' {
 		if "`ifUniverse'" == "none" {
 			local ifUniverse = "isHouseholder"
 		}
+		noisily disp "$S_TIME: ``x'' household universe: `universe'"
+		`svyPrefix': mean $`universe'Vars if `ifUniverse' == 1
+		matrix overallProp = r(table)
+		`svyPrefix': total $`universe'Vars if `ifUniverse' == 1
+		matrix overallCount = r(table)
+		foreach z in `demographics' {
+			if ((`disabilityInDatasetRC' != 0 & "`z'" == "disability") | (`incomeInDatasetRC' != 0 & "`z'" == "income")) {
+				continue
+			}
+			`svyPrefix': mean $`universe'Vars if `ifUniverse' == 1, over(`z')
+			matrix `z'Prop = r(table)
+			`svyPrefix': total $`universe'Vars if `ifUniverse' == 1, over(`z')
+			matrix `z'Count = r(table)
+		}
 		foreach q in $`universe'Vars {
-			* pull overall numbers
-			* noisily disp "$S_TIME universe: `universe'; ifUniverse: `ifUniverse'; q: `q'" // diagnostic
-			`svyPrefix': mean `q' if `ifUniverse' == 1
-			matrix temp = e(b)
-			local theStat = temp[1,1]
-			local varStats "(`theStat')"
-			matrix temp = e(V)
-			local theStat = sqrt(temp[1,1])
-			local varStats "`varStats' (`theStat')"
-			`svyPrefix': total `q' if `ifUniverse' == 1
-			matrix temp = e(b)
-			local theStat = temp[1,1]
-			local varStats "`varStats' (`theStat')"
-			matrix temp = e(V)
-			local theStat = sqrt(temp[1,1])
-			local varStats "`varStats' (`theStat')"
+			local varStats = "(`=string(overallProp["b", "`q'"], "%7.6f")') (`=string(overallProp["se", "`q'"], "%7.6f")') (`=string(overallCount["b", "`q'"], "%12.0f")') (`=string(overallCount["se", "`q'"], "%12.0f")')"
 			foreach z in `demographics' {
 				* pull var by each demographic
 				if `disabilityInDatasetRC' != 0 & "`z'" == "disability" {
@@ -231,22 +230,9 @@ foreach x of numlist 1/`numDatasets' {
 					if "`z'" == "ageGroup" {
 						local varStats "`varStats' (.) (.) (.) (.)" // no householders ages 3-14
 					}
-					`svyPrefix': mean `q'  if `ifUniverse' == 1, over(`z')
-					matrix tempEstProp = e(b)
-					matrix tempVarProp = e(V)
-					`svyPrefix': total `q'  if `ifUniverse' == 1, over(`z')
-					matrix tempEstCount = e(b)
-					matrix tempVarCount = e(V)
-					local numCats = colsof(tempEstProp)
-					foreach catNum of numlist 1/`numCats' {
-						local theStat = tempEstProp[1,`catNum']
-						local varStats "`varStats' (`theStat')"
-						local theStat = sqrt(tempVarProp[`catNum',`catNum'])
-						local varStats "`varStats' (`theStat')"
-						local theStat = tempEstCount[1,`catNum']
-						local varStats "`varStats' (`theStat')"
-						local theStat = sqrt(tempVarCount[`catNum',`catNum'])
-						local varStats "`varStats' (`theStat')"
+					levelsof `z' if `ifUniverse' == 1
+					foreach catNum of numlist `r(levels)' {
+						local varStats = "`varStats' (`=string(`z'Prop["b", "c.`q'@`catNum'.`z'"], "%7.6f")') (`=string(`z'Prop["se", "c.`q'@`catNum'.`z'"], "%7.6f")') (`=string(`z'Count["b", "c.`q'@`catNum'.`z'"], "%12.0f")') (`=string(`z'Count["se", "c.`q'@`catNum'.`z'"], "%12.0f")')"
 					}
 					if "`z'" == "race" {
 						count if race == 5
@@ -264,6 +250,7 @@ foreach x of numlist 1/`numDatasets' {
 			}
 		}
 	}
+	noisily disp "$S_TIME: ``x'' household variables done"
 	capture confirm variable pewgt1
 	if _rc == 0 {
 		svyset [iw=personWeight], sdrweight(pewgt1-pewgt160) vce(sdr) mse
@@ -282,29 +269,25 @@ foreach x of numlist 1/`numDatasets' {
 		if "`ifUniverse'" == "none" {
 			local ifUniverse = "isPerson"
 		}
-		foreach q in $`universe'Vars {
-			* pull overall numbers
-			* noisily disp "$S_TIME universe: `universe'; ifUniverse: `ifUniverse'; q: `q'" // diagnostic
-			/*if "`q'" == "isAdult" {
-				local ifUniverse = "isPerson"
+		if ("$`universe'Vars" == "") {
+			continue
+		}
+		noisily disp "$S_TIME: ``x'' person universe: `universe'"
+		`svyPrefix': mean $`universe'Vars if `ifUniverse' == 1
+		matrix overallProp = r(table)
+		`svyPrefix': total $`universe'Vars if `ifUniverse' == 1
+		matrix overallCount = r(table)
+		foreach z in `demographics' {
+			if ((`disabilityInDatasetRC' != 0 & "`z'" == "disability") | (`incomeInDatasetRC' != 0 & "`z'" == "income")) {
+				continue
 			}
-			else if "`ifUniverse'" == "none" {
-				local ifUniverse = "isPerson"
-			}*/
-			`svyPrefix': mean `q' if `ifUniverse' == 1
-			matrix temp = e(b)
-			local theStat = temp[1,1]
-			local varStats "(`theStat')"
-			matrix temp = e(V)
-			local theStat = sqrt(temp[1,1])
-			local varStats "`varStats' (`theStat')"
-			`svyPrefix': total `q' if `ifUniverse' == 1
-			matrix temp = e(b)
-			local theStat = temp[1,1]
-			local varStats "`varStats' (`theStat')"
-			matrix temp = e(V)
-			local theStat = sqrt(temp[1,1])
-			local varStats "`varStats' (`theStat')"
+			`svyPrefix': mean $`universe'Vars if `ifUniverse' == 1, over(`z')
+			matrix `z'Prop = r(table)
+			`svyPrefix': total $`universe'Vars if `ifUniverse' == 1, over(`z')
+			matrix `z'Count = r(table)
+		}
+		foreach q in $`universe'Vars {
+			local varStats = "(`=string(overallProp["b", "`q'"], "%7.6f")') (`=string(overallProp["se", "`q'"], "%7.6f")') (`=string(overallCount["b", "`q'"], "%12.0f")') (`=string(overallCount["se", "`q'"], "%12.0f")')"
 			foreach z in `demographics' {
 				* pull var by each demographic
 				if `disabilityInDatasetRC' != 0 & "`z'" == "disability" {
@@ -320,22 +303,9 @@ foreach x of numlist 1/`numDatasets' {
 							local varStats "`varStats' (.) (.) (.) (.)"
 						}
 					}
-					`svyPrefix': mean `q' if `ifUniverse' == 1, over(`z')
-					matrix tempEstProp = e(b)
-					matrix tempVarProp = e(V)
-					`svyPrefix': total `q' if `ifUniverse' == 1, over(`z')
-					matrix tempEstCount = e(b)
-					matrix tempVarCount = e(V)
-					local numCats = colsof(tempEstProp)
-					foreach catNum of numlist 1/`numCats' {
-						local theStat = tempEstProp[1,`catNum']
-						local varStats "`varStats' (`theStat')"
-						local theStat = sqrt(tempVarProp[`catNum',`catNum'])
-						local varStats "`varStats' (`theStat')"
-						local theStat = tempEstCount[1,`catNum']
-						local varStats "`varStats' (`theStat')"
-						local theStat = sqrt(tempVarCount[`catNum',`catNum'])
-						local varStats "`varStats' (`theStat')"
+					levelsof `z' if `ifUniverse' == 1
+					foreach catNum of numlist `r(levels)' {
+						local varStats = "`varStats' (`=string(`z'Prop["b", "c.`q'@`catNum'.`z'"], "%7.6f")') (`=string(`z'Prop["se", "c.`q'@`catNum'.`z'"], "%7.6f")') (`=string(`z'Count["b", "c.`q'@`catNum'.`z'"], "%12.0f")') (`=string(`z'Count["se", "c.`q'@`catNum'.`z'"], "%12.0f")')"
 					}
 					if "`z'" == "race" {
 						count if race == 5
@@ -356,6 +326,7 @@ foreach x of numlist 1/`numDatasets' {
 			}
 		}
 	}
+	noisily disp "$S_TIME: ``x'' person variables done"
 	capture confirm variable isRespondent
 	if _rc == 0 {
 		keep if isRespondent
@@ -368,49 +339,36 @@ foreach x of numlist 1/`numDatasets' {
 			svyset [iw=respondentWeight]
 			local svyPrefix "svy"
 		}
+		noisily disp "$S_TIME: ``x'' random respondent variables"
+		`svyPrefix': mean $adultInternetUserVars
+		matrix overallProp = r(table)
+		`svyPrefix': total $adultInternetUserVars
+		matrix overallCount = r(table)
+		foreach z in `demographics' {
+			if ((`disabilityInDatasetRC' != 0 & "`z'" == "disability") | (`incomeInDatasetRC' != 0 & "`z'" == "income")) {
+				continue
+			}
+			`svyPrefix': mean $adultInternetUserVars, over(`z')
+			matrix `z'Prop = r(table)
+			`svyPrefix': total $adultInternetUserVars, over(`z')
+			matrix `z'Count = r(table)
+		}
 		foreach q in $adultInternetUserVars { // rework if random respondent variables get multiple universes
-			* pull overall numbers
-			* noisily disp "$S_TIME q: `q'" // diagnostic
-			`svyPrefix': mean `q'
-			matrix temp = e(b)
-			local theStat = temp[1,1]
-			local varStats "(`theStat')"
-			matrix temp = e(V)
-			local theStat = sqrt(temp[1,1])
-			local varStats "`varStats' (`theStat')"
-			`svyPrefix': total `q'
-			matrix temp = e(b)
-			local theStat = temp[1,1]
-			local varStats "`varStats' (`theStat')"
-			matrix temp = e(V)
-			local theStat = sqrt(temp[1,1])
-			local varStats "`varStats' (`theStat')"
+			local varStats = "(`=string(overallProp["b", "`q'"], "%7.6f")') (`=string(overallProp["se", "`q'"], "%7.6f")') (`=string(overallCount["b", "`q'"], "%12.0f")') (`=string(overallCount["se", "`q'"], "%12.0f")')"
 			foreach z in `demographics' {
 				* pull var by each demographic
 				if "`z'" == "ageGroup" {
 					local varStats "`varStats' (.) (.) (.) (.)" // no random respondents ages 3-14
 				}
-				`svyPrefix': mean `q', over(`z')
-				matrix tempEstProp = e(b)
-				matrix tempVarProp = e(V)
-				`svyPrefix': total `q', over(`z')
-				matrix tempEstCount = e(b)
-				matrix tempVarCount = e(V)
-				local numCats = colsof(tempEstProp)
-				foreach catNum of numlist 1/`numCats' {
-					local theStat = tempEstProp[1,`catNum']
-					local varStats "`varStats' (`theStat')"
-					local theStat = sqrt(tempVarProp[`catNum',`catNum'])
-					local varStats "`varStats' (`theStat')"
-					local theStat = tempEstCount[1,`catNum']
-					local varStats "`varStats' (`theStat')"
-					local theStat = sqrt(tempVarCount[`catNum',`catNum'])
-					local varStats "`varStats' (`theStat')"
+				levelsof `z' if `ifUniverse' == 1
+				foreach catNum of numlist `r(levels)' {
+					local varStats = "`varStats' (`=string(`z'Prop["b", "c.`q'@`catNum'.`z'"], "%7.6f")') (`=string(`z'Prop["se", "c.`q'@`catNum'.`z'"], "%7.6f")') (`=string(`z'Count["b", "c.`q'@`catNum'.`z'"], "%12.0f")') (`=string(`z'Count["se", "c.`q'@`catNum'.`z'"], "%12.0f")')"
 				}
 			}
 			frame post `output' ("``x''") ("`q'") ("") ("adultInternetUser") `varStats'
 		}
 	}
+	noisily disp "$S_TIME: ``x'' random respondent variables done"
 }
 
 * Convert the dataset variable to date format, format stats appropriately, and add description and universe labels.
